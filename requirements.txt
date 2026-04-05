@@ -1,0 +1,8 @@
+pyttsx3
+SpeechRecognition
+pyautogui
+rapidfuzz
+feedparser
+Pillow
+requests
+pyaudio
