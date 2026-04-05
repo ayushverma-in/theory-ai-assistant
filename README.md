@@ -22,6 +22,9 @@ Theory is a Python-based voice-controlled desktop assistant that can perform tas
 - Requests
 - PIL
 
+## 🎥 Demo
+[Watch Demo on LinkedIn]()
+
 ## ▶️ How to Run
 
 ```bash
