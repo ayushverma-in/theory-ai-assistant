@@ -23,7 +23,7 @@ Theory is a Python-based voice-controlled desktop assistant that can perform tas
 - PIL
 
 ## 🎥 Demo
-[Watch Demo on LinkedIn]()
+[Watch Demo on LinkedIn](https://www.linkedin.com/posts/ayushverma-web_python-ai-machinelearning-activity-7446785696331292672-TeZh?utm_source=share&utm_medium=member_desktop&rcm=ACoAAF7JApoBqLjhWD7JIHQMcc-bPsxk9C9PeTo)
 
 ## ▶️ How to Run
 
