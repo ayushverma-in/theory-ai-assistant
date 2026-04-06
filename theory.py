@@ -169,7 +169,7 @@ while True:
         os.system("shutdown /r /t 5")
 
     elif is_match(command, ["exit", "stop", "close"]):
-        speak("Shutting down. Goodbye boss")
+        speak("Shutting down. Goodbye sir")
         break
 
     # VOLUME CONTROL 
