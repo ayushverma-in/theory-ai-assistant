@@ -25,6 +25,20 @@ Theory is a Python-based voice-controlled desktop assistant that can perform tas
 ## 🎥 Demo
 [Watch Demo on LinkedIn](https://www.linkedin.com/posts/ayushverma-web_python-ai-machinelearning-activity-7446785696331292672-TeZh?utm_source=share&utm_medium=member_desktop&rcm=ACoAAF7JApoBqLjhWD7JIHQMcc-bPsxk9C9PeTo)
 
+## About Project
+
+This project was built to explore voice automation and create a simple personal assistant using Python.
+
+## Future Improvements
+
+- Add GUI interface
+- Add AI chatbot
+- Improve command understanding
+
+## Author 
+
+Ayush Verma
+
 ## ▶️ How to Run
 
 ```bash
