@@ -64,7 +64,31 @@ def listen():
     except:
         speak("Say that again please")
         return ""
-    
+
+# WAKE WORD 
+
+WAKE_WORD = "hey theory"
+WAKE_MATCH_THRESHOLD = 80
+
+def listen_for_wake_word():
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration=0.5)
+        print("Waiting for wake word...")
+        while True:
+            try:
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=3)
+                heard = recognizer.recognize_google(audio).lower()
+                print("Heard:", heard)
+                if WAKE_WORD in heard or fuzz.partial_ratio(WAKE_WORD, heard) > WAKE_MATCH_THRESHOLD:
+                    return
+            except sr.WaitTimeoutError:
+                continue
+            except sr.UnknownValueError:
+                continue
+            except sr.RequestError:
+                time.sleep(1)
+                continue
+
 # MEMORY 
 
 def save_memory(text):
@@ -78,13 +102,57 @@ def read_memory():
     except FileNotFoundError:
         return ""
 
+# OLLAMA (LOCAL AI FALLBACK) 
+
+OLLAMA_URL = "http://localhost:11434/api/chat"
+OLLAMA_MODEL = "llama3.2"
+OLLAMA_SYSTEM_PROMPT = (
+    "You are Theory, a voice assistant running on the user's PC. "
+    "Your replies are converted to speech, so keep answers short: "
+    "1 to 3 plain sentences, no markdown, no bullet points, no code blocks."
+)
+
+conversation_history = []
+MAX_HISTORY_MESSAGES = 10  # keep last 10 (user+assistant) messages
+
+def ask_ollama(prompt):
+    global conversation_history
+
+    conversation_history.append({"role": "user", "content": prompt})
+    conversation_history = conversation_history[-MAX_HISTORY_MESSAGES:]
+
+    messages = [{"role": "system", "content": OLLAMA_SYSTEM_PROMPT}] + conversation_history
+
+    try:
+        response = requests.post(
+            OLLAMA_URL,
+            json={"model": OLLAMA_MODEL, "messages": messages, "stream": False},
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+        reply = data.get("message", {}).get("content", "").strip()
+
+        if not reply:
+            return "I don't have an answer for that."
+
+        conversation_history.append({"role": "assistant", "content": reply})
+        return reply
+
+    except requests.exceptions.ConnectionError:
+        return "I can't reach Ollama right now. Make sure it's running."
+    except requests.exceptions.Timeout:
+        return "That took too long to think about. Try again."
+    except Exception as e:
+        return f"Something went wrong talking to the AI model: {e}"
+
 # UTILITY FUNCTIONS 
 
 def is_match(command, keywords):
     for word in keywords:
         if word in command:
             return True
-        if fuzz.partial_ratio(word, command) > 70:
+        if fuzz.partial_ratio(word, command) > 85:
             return True
     return False
 
@@ -112,6 +180,9 @@ speak("Hello, I am Theory. How can I help you?")
 # MAIN LOOP 
 
 while True:
+    listen_for_wake_word()
+    speak("Yes?")
+
     command = listen()
     if command == "":
         continue
@@ -219,5 +290,12 @@ while True:
         else:
             speak("I don't remember anything yet")
 
+    # Reset AI conversation memory
+    elif is_match(command, ["clear chat", "reset chat", "clear conversation", "forget context"]):
+        conversation_history.clear()
+        speak("Okay, I've cleared our conversation.")
+
+    # Fallback: ask the local Ollama model
     else:
-        speak("I cannot answer that right now.")
+        reply = ask_ollama(command)
+        speak(reply)
